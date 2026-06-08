@@ -1,0 +1,22 @@
+{
+  "invalidLogins": [
+    {
+      "case": "empty username",
+      "username": "",
+      "password": "ZXcvbnm@123890!",
+      "expectedError": "User Name is required"
+    },
+    {
+      "case": "empty password",
+      "username": "sgurram",
+      "password": "",
+      "expectedError": "Password is required"
+    },
+    {
+      "case": "wrong credentials",
+      "username": "sgurram",
+      "password": "hjweghas",
+      "expectedError": "Invalid username or password"
+    }
+  ]
+}

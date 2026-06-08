@@ -1,0 +1,12 @@
+node_modules
+reports
+playwright-report
+test-results
+dist
+.git
+.github
+*.log
+
+# Never copy real secrets into the image.
+config/env/.env.local
+.env

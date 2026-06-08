@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Test reports & artifacts (regenerated on every run)
+reports/
+playwright-report/
+test-results/
+allure-results/
+allure-report/
+
+# Secrets & local overrides (NEVER commit these)
+.env
+config/env/.env.local
+
+# Logs
+*.log

@@ -1,0 +1,33 @@
+# Docker Compose makes running the container a single short command.
+#
+#   docker compose run --rm tests          -> run tests (normal networking)
+#   docker compose run --rm tests-host      -> run tests (host/VPN networking)
+#
+# Reports are written back to your machine via the mounted volumes below.
+
+services:
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cswg-automation-framework
+    environment:
+      CI: "true"
+      HEADLESS: "true"
+      # Pick the environment: dev | qa | stage | prod
+      TEST_ENV: ${TEST_ENV:-qa}
+      # Credentials come from your shell / .env (never hard-coded in the image).
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      STORE_USERNAME: ${STORE_USERNAME:-}
+      STORE_PASSWORD: ${STORE_PASSWORD:-}
+    volumes:
+      # Bring the reports back out of the container onto your machine.
+      - ./reports:/app/reports
+
+  # Same as above, but shares the host network so it can reach internal/VPN apps.
+  # On Docker Desktop, enable: Settings > Resources > Network > host networking.
+  tests-host:
+    extends:
+      service: tests
+    network_mode: host

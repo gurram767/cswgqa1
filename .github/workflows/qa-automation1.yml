@@ -1,0 +1,82 @@
+name: QA Automation Framework (qa-automation1)
+
+# When does this run? On pushes/PRs that touch the framework, plus a manual
+# button (workflow_dispatch) and a nightly schedule.
+on:
+  push:
+    branches: [main]
+    paths: ['qa-automation1/**', '.github/workflows/qa-automation1.yml']
+  pull_request:
+    branches: [main]
+    paths: ['qa-automation1/**']
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Suite to run'
+        type: choice
+        options: [smoke, regression, all]
+        default: smoke
+      environment:
+        description: 'Target environment'
+        type: choice
+        options: [qa, prod]
+        default: qa
+  schedule:
+    - cron: '0 2 * * *' # 02:00 UTC nightly
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # Use the official Playwright container so browsers are already installed.
+    container:
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
+
+    defaults:
+      run:
+        working-directory: qa-automation1
+
+    env:
+      CI: 'true'
+      HEADLESS: 'true'
+      TEST_ENV: ${{ inputs.environment || 'qa' }}
+      # Credentials come from repository secrets (Settings > Secrets > Actions).
+      ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      STORE_USERNAME: ${{ secrets.STORE_USERNAME }}
+      STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Run tests
+        run: |
+          SUITE="${{ inputs.suite || 'smoke' }}"
+          if [ "$SUITE" = "smoke" ]; then
+            npx playwright test --grep @smoke
+          elif [ "$SUITE" = "regression" ]; then
+            npx playwright test --grep @regression
+          else
+            npx playwright test
+          fi
+
+      - name: Upload Playwright HTML report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: qa-automation1/reports/html-report/
+          retention-days: 14
+
+      - name: Upload Allure results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: qa-automation1/reports/allure-results/
+          retention-days: 14

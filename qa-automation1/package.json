@@ -1,0 +1,51 @@
+{
+  "name": "cswg-connect-automation-framework",
+  "version": "1.0.0",
+  "description": "Enterprise Playwright + TypeScript automation framework (UI + API) for the CSW Connect portal",
+  "author": "QA Automation",
+  "license": "MIT",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test tests/ui",
+    "test:demo": "playwright test --grep @demo --project=chromium",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:sanity": "playwright test --grep @sanity",
+    "test:regression": "playwright test --grep @regression",
+    "test:chrome": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:edge": "playwright test --project=edge",
+    "test:headed": "playwright test --headed",
+    "test:debug": "PWDEBUG=1 playwright test",
+    "test:parallel": "playwright test --workers=4",
+    "report:html": "playwright show-report reports/html-report",
+    "report:allure": "allure generate reports/allure-results --clean -o reports/allure-report && allure open reports/allure-report",
+    "allure:generate": "allure generate reports/allure-results --clean -o reports/allure-report",
+    "install:browsers": "playwright install --with-deps chromium firefox msedge",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"**/*.{ts,json,md}\"",
+    "docker:build": "docker compose build",
+    "docker:test": "docker compose run --rm tests",
+    "docker:test:host": "docker compose run --rm tests-host"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.60.0",
+    "@types/node": "^20.14.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
+    "allure-commandline": "^2.29.0",
+    "allure-playwright": "^3.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-playwright": "^1.6.2",
+    "prettier": "^3.3.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

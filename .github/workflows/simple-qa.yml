@@ -1,0 +1,57 @@
+# ===========================================================================
+#  GitHub Actions workflow for the simple_qa_automation_framework
+#
+#  WHAT IT DOES (in plain words):
+#    Every time code is pushed, GitHub spins up a computer, installs the
+#    framework, runs the tests inside the official Playwright box, and saves
+#    the report so you can download and view it. No setup needed by you.
+# ===========================================================================
+
+name: Simple QA Framework
+
+on:
+  push:
+    branches: [main]
+    paths: ['simple_qa_automation_framework/**', '.github/workflows/simple-qa.yml']
+  pull_request:
+    branches: [main]
+    paths: ['simple_qa_automation_framework/**']
+  workflow_dispatch: {} # adds a manual "Run workflow" button
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Run inside the Playwright box so browsers are already installed.
+    container:
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
+
+    defaults:
+      run:
+        working-directory: simple_qa_automation_framework
+
+    env:
+      CI: 'true'
+      HEADLESS: 'true'
+      # Login details come from repository secrets (Settings > Secrets > Actions).
+      TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+      TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npx playwright test
+
+      - name: Save the HTML report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: simple_qa_automation_framework/reports/html-report/
+          retention-days: 14

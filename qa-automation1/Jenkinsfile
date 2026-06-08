@@ -1,0 +1,67 @@
+// Jenkins pipeline that runs the Playwright tests inside the official
+// Playwright Docker image. Because the image already has the browsers, the
+// Jenkins agent only needs Docker installed — nothing else.
+//
+// Set credentials in Jenkins (Manage Jenkins > Credentials) and reference them
+// below so passwords never appear in the Jenkinsfile.
+
+pipeline {
+  agent {
+    docker {
+      image 'mcr.microsoft.com/playwright:v1.60.0-noble'
+      // Run as root so npm can write inside the container workspace.
+      args '-u root'
+    }
+  }
+
+  parameters {
+    choice(name: 'TEST_ENV', choices: ['qa', 'prod'], description: 'Target environment')
+    choice(name: 'SUITE', choices: ['smoke', 'regression', 'all'], description: 'Which test suite to run')
+  }
+
+  environment {
+    CI = 'true'
+    HEADLESS = 'true'
+    TEST_ENV = "${params.TEST_ENV}"
+    // Bind Jenkins credentials (create these IDs in Jenkins first).
+    ADMIN_USERNAME = credentials('cswg-admin-username')
+    ADMIN_PASSWORD = credentials('cswg-admin-password')
+  }
+
+  options {
+    timeout(time: 30, unit: 'MINUTES')
+    timestamps()
+  }
+
+  stages {
+    stage('Install') {
+      steps {
+        sh 'npm ci || npm install'
+      }
+    }
+
+    stage('Test') {
+      steps {
+        script {
+          def grep = ''
+          if (params.SUITE == 'smoke')      { grep = '--grep @smoke' }
+          if (params.SUITE == 'regression') { grep = '--grep @regression' }
+          sh "npx playwright test ${grep}"
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      // Publish the JUnit results so Jenkins shows pass/fail trends.
+      junit allowEmptyResults: true, testResults: 'reports/junit/*.xml'
+
+      // Keep the HTML report and Allure results as build artifacts.
+      archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true, fingerprint: true
+
+      // If the Allure plugin is installed, publish the rich Allure report.
+      // allure includeProperties: false, results: [[path: 'reports/allure-results']]
+    }
+  }
+}
