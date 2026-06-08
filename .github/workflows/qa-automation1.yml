@@ -54,6 +54,11 @@ jobs:
       - name: Install dependencies
         run: npm ci || npm install
 
+      # The Playwright container ships Chromium but NOT Microsoft Edge, so we
+      # install the msedge channel to run the edge project in CI.
+      - name: Install Microsoft Edge
+        run: npx playwright install msedge
+
       - name: Run tests
         run: |
           SUITE="${{ inputs.suite || 'smoke' }}"

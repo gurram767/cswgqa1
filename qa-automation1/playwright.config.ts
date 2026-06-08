@@ -45,16 +45,11 @@ export default defineConfig({
   },
 
   projects: [
-    // ---- UI projects: cross-browser ----
+    // ---- UI projects: Chrome + Edge only ----
     {
       name: 'chromium',
       testDir: './tests/ui',
       use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      testDir: './tests/ui',
-      use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'edge',
