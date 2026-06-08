@@ -11,11 +11,6 @@ on:
     paths: ['qa-automation1/**']
   workflow_dispatch:
     inputs:
-      suite:
-        description: 'Suite to run'
-        type: choice
-        options: [smoke, regression, all]
-        default: smoke
       environment:
         description: 'Target environment'
         type: choice
@@ -59,16 +54,9 @@ jobs:
       - name: Install Microsoft Edge
         run: npx playwright install msedge
 
+      # Run every test (valid + invalid login) on both Chrome and Edge.
       - name: Run tests
-        run: |
-          SUITE="${{ inputs.suite || 'smoke' }}"
-          if [ "$SUITE" = "smoke" ]; then
-            npx playwright test --grep @smoke
-          elif [ "$SUITE" = "regression" ]; then
-            npx playwright test --grep @regression
-          else
-            npx playwright test
-          fi
+        run: npx playwright test
 
       - name: Upload Playwright HTML report
         if: ${{ !cancelled() }}
