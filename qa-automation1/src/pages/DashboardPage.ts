@@ -9,10 +9,14 @@ export class DashboardPage extends BasePage {
     super(page);
   }
 
-  /** True when the dashboard URL is shown (a sign login worked). */
+  /**
+   * True when the authenticated landing page is shown (a sign login worked).
+   * After login the app redirects to the home page (#/home); some flows may use
+   * #/dashboard, so we accept either.
+   */
   async isLoaded(): Promise<boolean> {
     try {
-      await this.wait.forUrl('dashboard');
+      await this.wait.forUrl(/#\/(home|dashboard)/);
       return true;
     } catch {
       return false;
