@@ -38,10 +38,11 @@ export default defineConfig({
     viewport: { width: 1440, height: 900 },
     ignoreHTTPSErrors: true,
 
-    // Diagnostics on failure only — keeps artifacts small at scale.
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    // Capture diagnostics for EVERY test (pass or fail) so the HTML and Allure
+    // reports always include a screenshot/trace for both valid and invalid tests.
+    trace: 'on',
+    screenshot: 'on',
+    video: 'on',
   },
 
   projects: [
