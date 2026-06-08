@@ -2,17 +2,16 @@ import { test, expect } from '../../../src/fixtures/test-fixtures';
 import { Users } from '../../../src/data/users';
 
 /**
- * SMOKE tests: a few quick, critical checks for the VALID (happy-path) login.
- * If these fail, the build is broken.
+ * VALID LOGIN tests (happy path).
  *
  * Real credentials are NEVER hard-coded. They come from the credential registry
  * (src/data/users.ts), which reads them from environment variables:
  *   - locally:  set ADMIN_USERNAME / ADMIN_PASSWORD in config/env/.env.local
  *   - in CI:    set them as repository secrets (Settings > Secrets > Actions)
  *
- * Run only smoke tests with:  npm run test:smoke  (playwright test --grep @smoke)
+ * Tagged @smoke so they run with the smoke suite.
  */
-test.describe('Login - Smoke (valid credentials)', () => {
+test.describe('Login - Valid Credentials', () => {
   test('login page loads with all key fields @smoke @sanity', async ({ loginPage }) => {
     // STEP 1: Open the login page.
     await loginPage.open();
@@ -34,7 +33,7 @@ test.describe('Login - Smoke (valid credentials)', () => {
     // STEP 3: Log in with the VALID username + password.
     await loginPage.login(admin);
 
-    // STEP 4: A successful login should land us on the dashboard.
+    // STEP 4: A successful login should land us on the home/dashboard page.
     expect(await dashboardPage.isLoaded()).toBe(true);
   });
 });
